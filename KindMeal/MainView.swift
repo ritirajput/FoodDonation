@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct MainView: View {
     @State private var showingDonationForm = false
+    @State private var navigateToLoginView = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Text("Welcome to KindMeal")
                     .font(.title)
@@ -40,15 +42,38 @@ struct MainView: View {
                 .padding()
 
                 Spacer()
+
+                // Logout Button
+                Button(action: logoutUser) {
+                    Text("Logout")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding()
             }
             .sheet(isPresented: $showingDonationForm) {
                 MakeDonationView()
             }
             .navigationTitle("Dashboard")
+            .fullScreenCover(isPresented: $navigateToLoginView) {
+                LoginView()
+            }
+        }
+    }
+
+    // Logout Function
+    private func logoutUser() {
+        do {
+            try Auth.auth().signOut()
+            navigateToLoginView = true
+        } catch let error {
+            print("Error signing out: \(error.localizedDescription)")
         }
     }
 }
-
 
 #Preview {
     MainView()
