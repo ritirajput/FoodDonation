@@ -7,6 +7,8 @@
 
 import SwiftUI
 import FirebaseDatabase
+import MapKit
+import CoreLocation
 
 struct MakeDonationView: View {
     @State private var mealType: String = "Veg"
@@ -15,7 +17,8 @@ struct MakeDonationView: View {
     @State private var description: String = ""
     @State private var donationName: String = ""
     @State private var contactNumber: String = ""
-    @State private var location: String = "Location will be added later"
+    @State private var locationName: String = ""
+    @State private var locationCoordinate: CLLocationCoordinate2D? = nil
     @State private var showToast: Bool = false
     @State private var navigateToMainView: Bool = false
     @State private var showAlert: Bool = false
@@ -84,16 +87,34 @@ struct MakeDonationView: View {
                         }
                         .padding()
 
-                        Text("Location (Coming Soon)")
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                        Text(location)
+                        // Location Search Field and Map
+                        VStack {
+                            HStack {
+                                Image(systemName: "mappin.circle")
+                                    .foregroundColor(.black)
+                                Text("Location")
+                                    .foregroundColor(.black)
+                                    .bold()
+                            }
+                            TextField("Search for location", text: $locationName, onCommit: {
+                                performLocationSearch()
+                            })
                             .padding()
                             .background(Color.white.opacity(0.8))
                             .cornerRadius(10)
                             .padding(.horizontal)
-                            .disabled(true)
+
+                            if let coordinate = locationCoordinate {
+                                Text("Selected Location: Latitude: \(coordinate.latitude), Longitude: \(coordinate.longitude)")
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal)
+                            }
+
+                            MapView(coordinate: $locationCoordinate)
+                                .frame(height: 200)
+                                .cornerRadius(10)
+                                .padding()
+                        }
 
                         inputField(title: "Contact Number", text: $contactNumber, placeholder: "Enter your contact number", keyboardType: .phonePad)
 
@@ -149,7 +170,7 @@ struct MakeDonationView: View {
         VStack(alignment: .leading) {
             HStack {
                 Image(systemName: "pencil.circle")
-                    .foregroundColor(.green)
+                    .foregroundColor(.black)
                 Text(title)
                     .foregroundColor(.black)
                     .bold()
@@ -180,7 +201,7 @@ struct MakeDonationView: View {
             showAlert = true
             return
         }
-        guard !location.isEmpty else {
+        guard let locationCoordinate = locationCoordinate else {
             errorMessage = "Location is required."
             showAlert = true
             return
@@ -193,7 +214,7 @@ struct MakeDonationView: View {
             "quantityType": quantityType,
             "quantity": selectedQuantity,
             "contactNumber": contactNumber,
-            "location": location,
+            "location": ["latitude": locationCoordinate.latitude, "longitude": locationCoordinate.longitude],
             "timestamp": Int(Date().timeIntervalSince1970)
         ]
 
@@ -214,9 +235,57 @@ struct MakeDonationView: View {
     private func discardChanges() {
         navigateToMainView = true
     }
+
+    private func performLocationSearch() {
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = locationName
+
+        let search = MKLocalSearch(request: searchRequest)
+        search.start { response, error in
+            if let coordinate = response?.mapItems.first?.placemark.coordinate {
+                locationCoordinate = coordinate
+            } else {
+                errorMessage = "Failed to find location. Please try again."
+                showAlert = true
+            }
+        }
+    }
 }
 
-#Preview {
-    MakeDonationView()
-}
+// MapView Component
+struct MapView: UIViewRepresentable {
+    @Binding var coordinate: CLLocationCoordinate2D?
 
+    func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView()
+        mapView.delegate = context.coordinator
+        return mapView
+    }
+
+    func updateUIView(_ uiView: MKMapView, context: Context) {
+        guard let coordinate = coordinate else { return }
+
+        let region = MKCoordinateRegion(
+            center: coordinate,
+            latitudinalMeters: 500,
+            longitudinalMeters: 500
+        )
+        uiView.setRegion(region, animated: true)
+
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        uiView.addAnnotation(annotation)
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, MKMapViewDelegate {
+        var parent: MapView
+
+        init(_ parent: MapView) {
+            self.parent = parent
+        }
+    }
+}
