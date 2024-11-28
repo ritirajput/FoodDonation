@@ -14,6 +14,13 @@ struct splash_screen: View {
     var body: some View {
         VStack {
             VStack{
+                  Image("food")
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(2.0)
+                    .padding()
+               
+                                
             Text("kindMeal")
                     .font(Font.custom("Baskerville-Bold",size: 30))
                     .foregroundColor(.black)
