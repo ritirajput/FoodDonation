@@ -8,8 +8,32 @@
 import SwiftUI
 
 struct SplashView: View {
+    @State private var isActive = false
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        if isActive {
+            LoginView()
+        } else {
+            ZStack {
+                Color(red: 229/255, green: 255/255, blue: 192/255)
+                    .ignoresSafeArea()
+
+                GeometryReader { geometry in
+                    Image("Connecting Hearts Through Meals.")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                }
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation {
+                        isActive = true
+                    }
+                }
+            }
+        }
     }
 }
 
