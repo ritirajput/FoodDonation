@@ -40,7 +40,8 @@ struct EditProfileView: View {
                         if let inputImage = inputImage {
                             Image(uiImage: inputImage)
                                 .resizable()
-                                .frame(width: 100, height: 100)
+                                .scaledToFill()
+                                .frame(width: 120, height: 120)
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.gray, lineWidth: 2))
                                 .shadow(radius: 5)
@@ -51,14 +52,14 @@ struct EditProfileView: View {
                                 Image(systemName: "person.circle.fill")
                                     .resizable()
                             }
-                            .frame(width: 100, height: 100)
+                            .frame(width: 120, height: 120)
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.gray, lineWidth: 2))
                             .shadow(radius: 5)
                         } else {
                             Image(systemName: "person.circle.fill")
                                 .resizable()
-                                .frame(width: 100, height: 100)
+                                .frame(width: 120, height: 120)
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.gray, lineWidth: 2))
                                 .shadow(radius: 5)
@@ -95,6 +96,13 @@ struct EditProfileView: View {
                                     .stroke(Color.gray.opacity(0.5), lineWidth: 1)
                             )
                     }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white)
+                            .shadow(color: .gray.opacity(0.3), radius: 10, x: 0, y: 5)
+                    )
+                    .padding(.horizontal)
 
                     Spacer()
 
@@ -106,6 +114,7 @@ struct EditProfileView: View {
                             .padding()
                             .background(Color.green)
                             .cornerRadius(10)
+                            .shadow(radius: 5)
                     }
                     .padding(.horizontal)
 
@@ -117,6 +126,7 @@ struct EditProfileView: View {
                             .padding()
                             .background(Color.red)
                             .cornerRadius(10)
+                            .shadow(radius: 5)
                     }
                     .padding(.horizontal)
 
@@ -128,12 +138,6 @@ struct EditProfileView: View {
                     }
                 }
                 .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color.white)
-                        .shadow(radius: 10)
-                )
-                .padding(.horizontal, 20)
                 .navigationTitle("Edit Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarBackButtonHidden(true)
@@ -172,7 +176,7 @@ struct EditProfileView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(.gray)
+                .foregroundColor(Color(red: 22/255, green: 137/255, blue: 12/255)) // Matching theme
             TextField(placeholder, text: text)
                 .padding()
                 .background(Color.white)
