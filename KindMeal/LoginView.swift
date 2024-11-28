@@ -17,44 +17,81 @@ struct LoginView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                Text("Login to KindMeal")
-                    .font(.title)
+            ZStack {
+                Color(red: 229/255, green: 255/255, blue: 192/255)
+                    .ignoresSafeArea()
+
+                VStack {
+                    Image("Connecting Hearts Through Meals. (1)")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .padding(.top, 20)
+
+                    VStack(spacing: 20) {
+                        Text("Login")
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(Color(red: 34/255, green: 139/255, blue: 34/255))
+
+                        TextField("Email", text: $email)
+                            .padding()
+                            .background(Color(red: 240/255, green: 255/255, blue: 240/255))
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.green, lineWidth: 1)
+                            )
+                            .textInputAutocapitalization(.none)
+                            .keyboardType(.emailAddress)
+
+                        SecureField("Password", text: $password)
+                            .padding()
+                            .background(Color(red: 240/255, green: 255/255, blue: 240/255))
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.green, lineWidth: 1)
+                            )
+
+                        Button(action: signIn) {
+                            Text("Login")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(15)
+                                .shadow(radius: 5)
+                        }
+
+                        if !errorMessage.isEmpty {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+
+                        NavigationLink("Forgot Password?", destination: ForgotPasswordView())
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                    }
                     .padding()
+                    .background(Color(red: 245/255, green: 255/255, blue: 250/255))
+                    .cornerRadius(20)
+                    .shadow(radius: 10)
+                    .padding(.horizontal, 30)
 
-                TextField("Email", text: $email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                    .padding(.horizontal)
+                    Spacer()
 
-                SecureField("Password", text: $password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-
-                Button(action: signIn) {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                    NavigationLink(destination: SignUpView()) {
+                        Text("Don't have an account? Sign Up")
+                            .foregroundColor(.blue)
+                            .font(.footnote)
+                            .padding(.top, 20)
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.top, 20)
-
-                Text(errorMessage).foregroundColor(.red)
-                
-                NavigationLink("Forgot Password?", destination: ForgotPasswordView())
-                    .padding(.top, 10)
-
-                Spacer()
-
-                NavigationLink(destination: SignUpView()) {
-                    Text("Don't have an account? Sign Up")
-                }
+                .padding()
             }
-            .padding()
             .fullScreenCover(isPresented: $isAuthenticated) {
                 MainView()
             }
@@ -71,7 +108,6 @@ struct LoginView: View {
         }
     }
 }
-
 
 #Preview {
     LoginView()
