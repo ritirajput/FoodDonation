@@ -25,20 +25,13 @@ struct signup: View {
             SecureField("Password",text: $password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal,40)
-            Button(action: signup){
-                Text("Sign UP")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(width: 240 , height: 60)
-                    .background(Color.green)
-                    .cornerRadius(15.0)
-            }
-            .padding()
+            Button("Sign up"){
+                
+            }.padding()
             Button(action : {
                 isPresented = false
             }){
-                Text("Cancel")
+                Text("Back")
                     .font(.headline)
                     .foregroundColor(.red)
                     .padding()

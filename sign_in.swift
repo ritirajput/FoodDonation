@@ -23,6 +23,9 @@ Text("kindMeal")
         SecureField("Password",text: $password)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding()
+            Button("Forget password"){
+                
+            }.padding()
         Button("Sign In"){
             
         }.padding()
