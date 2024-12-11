@@ -166,6 +166,7 @@ struct Donation: Identifiable {
     let quantity: Int
     let quantityType: String
     let contactNumber: String
+    let status: String
     let locationName: String?
     let isOpen: Bool
     let isReserved: Bool
