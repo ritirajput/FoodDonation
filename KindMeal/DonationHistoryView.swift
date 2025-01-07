@@ -99,7 +99,7 @@ struct DonationHistoryView: View {
                 return nil
             }
 
-            filterDonations(for: self.selectedTab)
+            filterDonations(for: self.selectedTab) 
         } withCancel: { error in
             self.errorMessage = ErrorMessage(message: error.localizedDescription)
         }
@@ -123,41 +123,45 @@ struct DonationCard: View {
     let donation: Donation
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(donation.donationName)
-                    .font(.headline)
-                    .foregroundColor(.black)
-                Spacer()
-                Text(donation.derivedStatus)
+        NavigationLink(destination: DonationDetailView(donationId: donation.id)) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text(donation.donationName)
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    Spacer()
+                    Text(donation.derivedStatus)
+                        .font(.subheadline)
+                        .foregroundColor(donation.statusColor)
+                }
+
+                Text("Meal Type: \(donation.mealType)")
                     .font(.subheadline)
-                    .foregroundColor(donation.statusColor)
-            }
+                    .foregroundColor(.gray)
 
-            Text("Meal Type: \(donation.mealType)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                Text("Quantity: \(donation.quantity) \(donation.quantityType)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
 
-            Text("Quantity: \(donation.quantity) \(donation.quantityType)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                if let location = donation.locationName {
+                    Text("Location: \(location)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
 
-            if let location = donation.locationName {
-                Text("Location: \(location)")
+                Text("Contact: \(donation.contactNumber)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-
-            Text("Contact: \(donation.contactNumber)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(radius: 5)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(10)
-        .shadow(radius: 5)
     }
 }
+
+
 
 struct Donation: Identifiable {
     let id: String
@@ -166,7 +170,7 @@ struct Donation: Identifiable {
     let quantity: Int
     let quantityType: String
     let contactNumber: String
-    let status: String
+    let description: String?
     let locationName: String?
     let isOpen: Bool
     let isReserved: Bool
@@ -182,11 +186,12 @@ struct Donation: Identifiable {
         self.quantityType = data["quantityType"] as? String ?? "N/A"
         self.contactNumber = data["contactNumber"] as? String ?? "N/A"
         self.locationName = data["location"] as? String
+        self.description = data["description"] as? String
+
 
         self.isOpen = true
         self.isReserved = false
         self.isClosed = false
-
         self.derivedStatus = isOpen ? "Open" : isReserved ? "Reserved" : "Closed"
         self.statusColor = isOpen ? .green : isReserved ? .orange : .red
     }
