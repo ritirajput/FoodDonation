@@ -2,7 +2,7 @@
 //  DonationHistoryView.swift
 //  KindMeal
 //
-//  Created by Nabeel Shajahan on 2024-10-31.
+//Created by Admin on 2025-01-08.
 //
 
 import SwiftUI
@@ -64,9 +64,10 @@ struct DonationHistoryView: View {
                     } else {
                         ScrollView {
                             ForEach(donations) { donation in
-                                DonationCard(donation: donation)
+                                NavigationLink(destination: EditOpenEntry()){DonationCard(donation: donation)
                                     .padding(.horizontal)
                                     .padding(.vertical, 5)
+                                }.buttonStyle(PlainButtonStyle())
                             }
                         }
                     }
@@ -132,32 +133,41 @@ struct DonationCard: View {
                 Text(donation.derivedStatus)
                     .font(.subheadline)
                     .foregroundColor(donation.statusColor)
+                    Image(systemName: "trash.fill")
+                        .foregroundColor(.black)
+                        .padding(5)
+                
             }
-
-            Text("Meal Type: \(donation.mealType)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-
-            Text("Quantity: \(donation.quantity) \(donation.quantityType)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-
-            if let location = donation.locationName {
-                Text("Location: \(location)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            HStack{
+                VStack(alignment: .leading, spacing: 10){
+                    Text("Meal Type: \(donation.mealType)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    Text("Quantity: \(donation.quantity) \(donation.quantityType)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    if let location = donation.locationName {
+                        Text("Location: \(location)")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Text("Contact: \(donation.contactNumber)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
             }
-
-            Text("Contact: \(donation.contactNumber)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(10)
-        .shadow(radius: 5)
+        }.padding()
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(radius: 5)
+            
     }
 }
+    
+
 
 struct Donation: Identifiable {
     let id: String
@@ -166,7 +176,7 @@ struct Donation: Identifiable {
     let quantity: Int
     let quantityType: String
     let contactNumber: String
-    let status: String
+    //let status: String
     let locationName: String?
     let isOpen: Bool
     let isReserved: Bool

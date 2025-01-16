@@ -2,7 +2,7 @@
 //  KindMealApp.swift
 //  KindMeal
 //
-//  Created by Nabeel Shajahan on 2024-10-29.
+//  Created by Admin on 2025-01-08.
 //
 
 import SwiftUI
