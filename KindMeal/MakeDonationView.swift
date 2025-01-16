@@ -263,7 +263,9 @@ struct MakeDonationView: View {
             "quantity": selectedQuantity,
             "contactNumber": contactNumber,
             "location": ["latitude": locationCoordinate.latitude, "longitude": locationCoordinate.longitude],
-            "timestamp": Int(Date().timeIntervalSince1970)
+            "timestamp": Int(Date().timeIntervalSince1970),
+            "reservedBy": NSNull(),
+            "closed": false
         ]
 
         databaseRef.child("donations").childByAutoId().setValue(donationData) { error, _ in

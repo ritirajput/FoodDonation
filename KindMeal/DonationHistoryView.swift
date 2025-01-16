@@ -10,12 +10,13 @@ import FirebaseDatabase
 import FirebaseAuth
 
 struct DonationHistoryView: View {
-    @State private var selectedTab: String = "Open"
     @State private var donations: [Donation] = []
-    @State private var errorMessage: ErrorMessage? = nil
+    @State private var filteredDonations: [Donation] = []
+    @State private var selectedTab: String = "Open"
+    @State private var errorMessage: ErrorMessage?
 
     private let tabs = ["Open", "Reserved", "Closed"]
-    private let databaseRef = Database.database().reference()
+    private var databaseRef: DatabaseReference = Database.database().reference()
 
     var body: some View {
         NavigationStack {
@@ -48,7 +49,7 @@ struct DonationHistoryView: View {
                     }
                     .padding(.horizontal)
 
-                    if donations.isEmpty {
+                    if filteredDonations.isEmpty {
                         VStack {
                             Image(systemName: "tray")
                                 .resizable()
@@ -63,7 +64,7 @@ struct DonationHistoryView: View {
                         }
                     } else {
                         ScrollView {
-                            ForEach(donations) { donation in
+                            ForEach(filteredDonations) { donation in
                                 DonationCard(donation: donation)
                                     .padding(.horizontal)
                                     .padding(.vertical, 5)
@@ -89,6 +90,7 @@ struct DonationHistoryView: View {
         databaseRef.child("donations").observeSingleEvent(of: .value) { snapshot in
             guard let data = snapshot.value as? [String: Any] else {
                 self.donations = []
+                self.filteredDonations = []
                 return
             }
 
@@ -99,7 +101,7 @@ struct DonationHistoryView: View {
                 return nil
             }
 
-            filterDonations(for: self.selectedTab) 
+            filterDonations(for: self.selectedTab)
         } withCancel: { error in
             self.errorMessage = ErrorMessage(message: error.localizedDescription)
         }
@@ -108,11 +110,11 @@ struct DonationHistoryView: View {
     private func filterDonations(for tab: String) {
         switch tab {
         case "Open":
-            self.donations = donations.filter { $0.isOpen }
+            self.filteredDonations = donations.filter { $0.isOpen }
         case "Reserved":
-            self.donations = donations.filter { $0.isReserved }
+            self.filteredDonations = donations.filter { $0.isReserved }
         case "Closed":
-            self.donations = donations.filter { $0.isClosed }
+            self.filteredDonations = donations.filter { $0.isClosed }
         default:
             break
         }
@@ -132,7 +134,6 @@ struct DonationCard: View {
                     Spacer()
                     Text(donation.derivedStatus)
                         .font(.subheadline)
-                        .foregroundColor(donation.statusColor)
                 }
 
                 Text("Meal Type: \(donation.mealType)")
@@ -142,12 +143,6 @@ struct DonationCard: View {
                 Text("Quantity: \(donation.quantity) \(donation.quantityType)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
-
-                if let location = donation.locationName {
-                    Text("Location: \(location)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
 
                 Text("Contact: \(donation.contactNumber)")
                     .font(.subheadline)
@@ -161,8 +156,6 @@ struct DonationCard: View {
     }
 }
 
-
-
 struct Donation: Identifiable {
     let id: String
     let donationName: String
@@ -171,29 +164,43 @@ struct Donation: Identifiable {
     let quantityType: String
     let contactNumber: String
     let description: String?
-    let locationName: String?
-    let isOpen: Bool
-    let isReserved: Bool
-    let isClosed: Bool
-    let derivedStatus: String
-    let statusColor: Color
+    let location: [String: Double]?
+    let timestamp: Int
+    let reservedBy: String?
+    let closed: Bool
 
-    init(id: String, data: [String: Any]) {
+    var isOpen: Bool { reservedBy == nil && !closed }
+    var isReserved: Bool { reservedBy != nil && !closed }
+    var isClosed: Bool { closed }
+
+    var derivedStatus: String {
+        if isOpen { return "Open" }
+        if isReserved { return "Reserved" }
+        return "Closed" }
+
+    init?(id: String, data: [String: Any]) {
+        guard
+            let donationName = data["donationName"] as? String,
+            let mealType = data["mealType"] as? String,
+            let quantity = data["quantity"] as? Int,
+            let quantityType = data["quantityType"] as? String,
+            let contactNumber = data["contactNumber"] as? String,
+            let timestamp = data["timestamp"] as? Int
+        else {
+            return nil
+        }
+
         self.id = id
-        self.donationName = data["donationName"] as? String ?? "N/A"
-        self.mealType = data["mealType"] as? String ?? "N/A"
-        self.quantity = data["quantity"] as? Int ?? 0
-        self.quantityType = data["quantityType"] as? String ?? "N/A"
-        self.contactNumber = data["contactNumber"] as? String ?? "N/A"
-        self.locationName = data["location"] as? String
+        self.donationName = donationName
+        self.mealType = mealType
+        self.quantity = quantity
+        self.quantityType = quantityType
+        self.contactNumber = contactNumber
         self.description = data["description"] as? String
-
-
-        self.isOpen = true
-        self.isReserved = false
-        self.isClosed = false
-        self.derivedStatus = isOpen ? "Open" : isReserved ? "Reserved" : "Closed"
-        self.statusColor = isOpen ? .green : isReserved ? .orange : .red
+        self.location = data["location"] as? [String: Double]
+        self.timestamp = timestamp
+        self.reservedBy = data["reservedBy"] as? String
+        self.closed = data["closed"] as? Bool ?? false
     }
 }
 
