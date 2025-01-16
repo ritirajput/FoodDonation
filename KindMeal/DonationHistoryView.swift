@@ -206,3 +206,15 @@ struct ErrorMessage: Identifiable {
     let id = UUID()
     let message: String
 }
+//func delete(){
+//    let reference = Database.database().reference()
+//          reference.child("users").child(userId).child("posts").child(postId).removeValue {
+//              error, _ in
+//              if let error = error{
+//                  print("Error deleting post: \(error.localizedDescription)")
+//              } else {
+//                  print("Post deleted successfuly.")
+//              }
+//              
+//          }
+//}
